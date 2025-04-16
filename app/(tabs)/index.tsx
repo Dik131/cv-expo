@@ -112,11 +112,116 @@ export default function Terminal() {
 
   const executeCommand = async (command: string) => {
     let output: React.ReactNode;
-    const cmd = command.trim().toLowerCase();
-    const [mainCmd, ...args] = cmd.split(' ');
-    const flag = args[0];
+    // Normalize command: remove extra spaces, invisible chars, normalize newlines
+    let cmd = command.replace(/[\u200B-\u200D\uFEFF]/g, '')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .toLowerCase()
+  // Normalize Unicode dashes (en/em) to double hyphens
+  .replace(/[\u2012\u2013\u2014\u2015]+/g, '--');
 
-    if (mainCmd === 'print') {
+    let matched = false;
+    if (cmd.startsWith('cv')) {
+      // Get everything after 'cv' and trim
+      const flag = cmd.slice(2).trim();
+
+      switch (flag) {
+        case '--help':
+          output = (
+            <>
+              <Text style={styles.outputText}>Available commands:</Text>
+              {Object.entries(COMMANDS).map(([cmd, desc]) => (
+                <Text key={cmd} style={styles.outputText}>
+                  {cmd.padEnd(20)} - {desc}
+                </Text>
+              ))}
+            </>
+          );
+          matched = true;
+          break;
+
+        case '--name':
+          output = (
+            <>
+              <Text style={styles.outputText}>Name: {cvData.name}</Text>
+              <Text style={styles.outputText}>Title: {cvData.title}</Text>
+              <Text style={styles.outputText}>Location: {cvData.location}</Text>
+            </>
+          );
+          matched = true;
+          break;
+
+        case '--education':
+          output = cvData.education.map((edu, index) => (
+            <RNView key={index} style={styles.section}>
+              <Text style={styles.outputText}>{edu.degree}</Text>
+              <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
+            </RNView>
+          ));
+          matched = true;
+          break;
+
+        case '--experience':
+          output = cvData.experience.map((exp, index) => (
+            <RNView key={index} style={styles.section}>
+              <Text style={styles.outputText}>{exp.role}</Text>
+              <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
+              <Text style={styles.outputText}>{exp.description}</Text>
+            </RNView>
+          ));
+          matched = true;
+          break;
+
+        case '--skills':
+          output = cvData.skills.map((skill, index) => (
+            <Text key={index} style={styles.outputText}>• {skill}</Text>
+          ));
+          matched = true;
+          break;
+
+        case '--all':
+          output = (
+            <>
+              <Text style={[styles.outputText, styles.sectionTitle]}>Personal Information</Text>
+              <Text style={styles.outputText}>Name: {cvData.name}</Text>
+              <Text style={styles.outputText}>Title: {cvData.title}</Text>
+              <Text style={styles.outputText}>Location: {cvData.location}</Text>
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Education</Text>
+              {cvData.education.map((edu, index) => (
+                <RNView key={index} style={styles.section}>
+                  <Text style={styles.outputText}>{edu.degree}</Text>
+                  <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
+                </RNView>
+              ))}
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Experience</Text>
+              {cvData.experience.map((exp, index) => (
+                <RNView key={index} style={styles.section}>
+                  <Text style={styles.outputText}>{exp.role}</Text>
+                  <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
+                  <Text style={styles.outputText}>{exp.description}</Text>
+                </RNView>
+              ))}
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Skills</Text>
+              {cvData.skills.map((skill, index) => (
+                <Text key={index} style={styles.outputText}>• {skill}</Text>
+              ))}
+            </>
+          );
+          matched = true;
+          break;
+
+        default:
+          output = (
+            <Text style={styles.outputText}>
+              Command not recognized. Type 'cv --help' to see available commands.
+            </Text>
+          );
+          matched = true;
+      }
+    } else if (cmd === 'print') {
       if (Platform.OS === 'web') {
         // Web printing logic
         const htmlContent = `
@@ -204,7 +309,7 @@ export default function Terminal() {
           output = <Text style={styles.outputText}>Error capturing screenshot: {errorMessage}</Text>;
         }
       }
-    } else if (mainCmd === 'edit') {
+    } else if (cmd.startsWith('edit')) {
       const params = parseEditCommand(command);
       const newData = { ...cvData };
 
@@ -235,96 +340,6 @@ export default function Terminal() {
 
       setCvData(newData);
       output = <Text style={styles.outputText}>CV updated successfully!</Text>;
-    } else if (cmd === 'cv') {
-      switch (flag) {
-        case '--help':
-          output = (
-            <>
-              <Text style={styles.outputText}>Available commands:</Text>
-              {Object.entries(COMMANDS).map(([cmd, desc]) => (
-                <Text key={cmd} style={styles.outputText}>
-                  {cmd.padEnd(20)} - {desc}
-                </Text>
-              ))}
-            </>
-          );
-          break;
-
-        case '--name':
-          output = (
-            <>
-              <Text style={styles.outputText}>Name: {cvData.name}</Text>
-              <Text style={styles.outputText}>Title: {cvData.title}</Text>
-              <Text style={styles.outputText}>Location: {cvData.location}</Text>
-            </>
-          );
-          break;
-
-        case '--education':
-          output = cvData.education.map((edu, index) => (
-            <RNView key={index} style={styles.section}>
-              <Text style={styles.outputText}>{edu.degree}</Text>
-              <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
-            </RNView>
-          ));
-          break;
-
-        case '--experience':
-          output = cvData.experience.map((exp, index) => (
-            <RNView key={index} style={styles.section}>
-              <Text style={styles.outputText}>{exp.role}</Text>
-              <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
-              <Text style={styles.outputText}>{exp.description}</Text>
-            </RNView>
-          ));
-          break;
-
-        case '--skills':
-          output = cvData.skills.map((skill, index) => (
-            <Text key={index} style={styles.outputText}>• {skill}</Text>
-          ));
-          break;
-
-        case '--all':
-          output = (
-            <>
-              <Text style={[styles.outputText, styles.sectionTitle]}>Personal Information</Text>
-              <Text style={styles.outputText}>Name: {cvData.name}</Text>
-              <Text style={styles.outputText}>Title: {cvData.title}</Text>
-              <Text style={styles.outputText}>Location: {cvData.location}</Text>
-              
-              <Text style={[styles.outputText, styles.sectionTitle]}>Education</Text>
-              {cvData.education.map((edu, index) => (
-                <RNView key={index} style={styles.section}>
-                  <Text style={styles.outputText}>{edu.degree}</Text>
-                  <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
-                </RNView>
-              ))}
-              
-              <Text style={[styles.outputText, styles.sectionTitle]}>Experience</Text>
-              {cvData.experience.map((exp, index) => (
-                <RNView key={index} style={styles.section}>
-                  <Text style={styles.outputText}>{exp.role}</Text>
-                  <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
-                  <Text style={styles.outputText}>{exp.description}</Text>
-                </RNView>
-              ))}
-              
-              <Text style={[styles.outputText, styles.sectionTitle]}>Skills</Text>
-              {cvData.skills.map((skill, index) => (
-                <Text key={index} style={styles.outputText}>• {skill}</Text>
-              ))}
-            </>
-          );
-          break;
-
-        default:
-          output = (
-            <Text style={styles.outputText}>
-              Command not recognized. Type 'cv --help' to see available commands.
-            </Text>
-          );
-      }
     } else if (cmd === 'clear') {
       setCommandHistory([]);
       return;
@@ -343,9 +358,24 @@ export default function Terminal() {
   };
 
   const handleSubmit = () => {
+  let output: React.ReactNode;
     if (currentCommand.trim()) {
       executeCommand(currentCommand);
       setCurrentCommand('');
+    } else {
+      output = (
+        <Text style={styles.outputText}>
+          Command not recognized. Type 'cv --help' to see available commands.
+        </Text>
+      );
+    }
+    // fallback for all other commands
+    if (!output) {
+      output = (
+        <Text style={styles.outputText}>
+          Command not recognized. Type 'cv --help' to see available commands.
+        </Text>
+      );
     }
   };
 
