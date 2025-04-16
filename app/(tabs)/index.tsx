@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View as RNView, Platform, Share } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View as RNView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Print from 'expo-print';
 import { captureRef } from 'react-native-view-shot';
-import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 
 const DEFAULT_CV_DATA = {
   name: 'John Doe',
@@ -52,7 +52,7 @@ const COMMANDS = {
   'cv --education': 'Display education history',
   'cv --experience': 'Display work experience',
   'cv --skills': 'Display technical skills',
-  'cv --fullcv': 'Display complete CV in a formatted view',
+  'cv --all': 'Display complete CV in a formatted view',
   'edit --name <value>': 'Edit name (e.g., edit --name John Smith)',
   'edit --title <value>': 'Edit title (e.g., edit --title "Full Stack Developer")',
   'edit --location <value>': 'Edit location (e.g., edit --location "San Francisco, USA")',
@@ -112,10 +112,99 @@ export default function Terminal() {
 
   const executeCommand = async (command: string) => {
     let output: React.ReactNode;
-    const [cmd, ...args] = command.trim().toLowerCase().split(' ');
+    const cmd = command.trim().toLowerCase();
+    const [mainCmd, ...args] = cmd.split(' ');
     const flag = args[0];
 
-    if (cmd === 'edit') {
+    if (mainCmd === 'print') {
+      if (Platform.OS === 'web') {
+        // Web printing logic
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                h1 { color: #333; }
+                h2 { color: #666; margin-top: 20px; }
+                .section { margin-bottom: 20px; }
+                .item { margin-bottom: 10px; }
+              </style>
+            </head>
+            <body>
+              <h1>${cvData.name}</h1>
+              <p>${cvData.title}</p>
+              <p>${cvData.location}</p>
+              
+              <h2>Education</h2>
+              ${cvData.education.map(edu => `
+                <div class="section">
+                  <div class="item">
+                    <strong>${edu.degree}</strong><br>
+                    ${edu.school} | ${edu.year}
+                  </div>
+                </div>
+              `).join('')}
+              
+              <h2>Experience</h2>
+              ${cvData.experience.map(exp => `
+                <div class="section">
+                  <div class="item">
+                    <strong>${exp.role}</strong><br>
+                    ${exp.company} | ${exp.period}<br>
+                    ${exp.description}
+                  </div>
+                </div>
+              `).join('')}
+              
+              <h2>Skills</h2>
+              <ul>
+                ${cvData.skills.map(skill => `<li>${skill}</li>`).join('')}
+              </ul>
+            </body>
+          </html>
+        `;
+
+        try {
+          await Print.printAsync({
+            html: htmlContent,
+          });
+          output = <Text style={styles.outputText}>CV has been prepared for printing.</Text>;
+        } catch (error) {
+          output = <Text style={styles.outputText}>Error preparing CV for print. Please try again.</Text>;
+        }
+      } else {
+        try {
+          // Check if sharing is available
+          const isSharingAvailable = await Sharing.isAvailableAsync();
+          if (!isSharingAvailable) {
+            output = <Text style={styles.outputText}>Sharing is not available on this device.</Text>;
+            return;
+          }
+
+          // Capture the full terminal view
+          const uri = await captureRef(terminalRef, {
+            format: 'jpg',
+            quality: 0.8,
+            result: 'tmpfile',
+            width: 1080,
+            height: 1920,
+            snapshotContentContainer: false
+          });
+
+          // Share the screenshot
+          await Sharing.shareAsync(uri, {
+            mimeType: 'image/jpeg',
+            dialogTitle: 'Share your CV Terminal screenshot'
+          });
+          
+          output = <Text style={styles.outputText}>Screenshot ready to share!</Text>;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          output = <Text style={styles.outputText}>Error capturing screenshot: {errorMessage}</Text>;
+        }
+      }
+    } else if (mainCmd === 'edit') {
       const params = parseEditCommand(command);
       const newData = { ...cvData };
 
@@ -196,7 +285,7 @@ export default function Terminal() {
           ));
           break;
 
-        case '--fullcv':
+        case '--all':
           output = (
             <>
               <Text style={[styles.outputText, styles.sectionTitle]}>Personal Information</Text>
@@ -236,101 +325,12 @@ export default function Terminal() {
             </Text>
           );
       }
-    } else if (command.trim().toLowerCase() === 'clear') {
+    } else if (cmd === 'clear') {
       setCommandHistory([]);
       return;
-    } else if (command.trim().toLowerCase() === 'clear cv') {
+    } else if (cmd === 'clear cv') {
       setCvData({ ...DEFAULT_CV_DATA });
       output = <Text style={styles.outputText}>CV has been reset to default values.</Text>;
-    } else if (command.trim().toLowerCase() === 'print') {
-      if (Platform.OS === 'web') {
-        const htmlContent = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-                h1 { color: #333; }
-                h2 { color: #666; margin-top: 20px; }
-                .section { margin-bottom: 20px; }
-                .item { margin-bottom: 10px; }
-              </style>
-            </head>
-            <body>
-              <h1>${cvData.name}</h1>
-              <p>${cvData.title}</p>
-              <p>${cvData.location}</p>
-              
-              <h2>Education</h2>
-              ${cvData.education.map(edu => `
-                <div class="section">
-                  <div class="item">
-                    <strong>${edu.degree}</strong><br>
-                    ${edu.school} | ${edu.year}
-                  </div>
-                </div>
-              `).join('')}
-              
-              <h2>Experience</h2>
-              ${cvData.experience.map(exp => `
-                <div class="section">
-                  <div class="item">
-                    <strong>${exp.role}</strong><br>
-                    ${exp.company} | ${exp.period}<br>
-                    ${exp.description}
-                  </div>
-                </div>
-              `).join('')}
-              
-              <h2>Skills</h2>
-              <ul>
-                ${cvData.skills.map(skill => `<li>${skill}</li>`).join('')}
-              </ul>
-            </body>
-          </html>
-        `;
-
-        try {
-          await Print.printAsync({
-            html: htmlContent,
-          });
-          output = <Text style={styles.outputText}>CV has been prepared for printing.</Text>;
-        } catch (error) {
-          output = <Text style={styles.outputText}>Error preparing CV for print. Please try again.</Text>;
-        }
-      } else {
-        try {
-          // Request permission to save to media library
-          const { status } = await MediaLibrary.requestPermissionsAsync();
-          if (status !== 'granted') {
-            output = <Text style={styles.outputText}>Permission to access media library was denied.</Text>;
-            return;
-          }
-
-          // Capture the full terminal view
-          const uri = await captureRef(terminalRef, {
-            format: 'jpg',
-            quality: 0.8,
-            result: 'tmpfile',
-            snapshotContentContainer: true
-          });
-
-          // Save to media library
-          const asset = await MediaLibrary.createAssetAsync(uri);
-          await MediaLibrary.createAlbumAsync('CV Terminal', asset, false);
-
-          // Also share the screenshot
-          await Share.share({
-            url: uri,
-            title: 'Terminal CV Screenshot',
-          });
-          
-          output = <Text style={styles.outputText}>Screenshot saved to gallery and ready to share.</Text>;
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          output = <Text style={styles.outputText}>Error capturing screenshot: {errorMessage}</Text>;
-        }
-      }
     } else {
       output = (
         <Text style={styles.outputText}>
