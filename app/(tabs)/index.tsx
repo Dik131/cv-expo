@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, View as RNView, Platform, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Print from 'expo-print';
+import { captureRef } from 'react-native-view-shot';
+import * as MediaLibrary from 'expo-media-library';
 
-const CV_DATA = {
+const DEFAULT_CV_DATA = {
   name: 'John Doe',
   title: 'Senior Software Engineer',
   age: 30,
@@ -49,21 +52,37 @@ const COMMANDS = {
   'cv --education': 'Display education history',
   'cv --experience': 'Display work experience',
   'cv --skills': 'Display technical skills',
-  'cv --all': 'Display all CV information',
-  'clear': 'Clear terminal output'
+  'cv --fullcv': 'Display complete CV in a formatted view',
+  'edit --name <value>': 'Edit name (e.g., edit --name John Smith)',
+  'edit --title <value>': 'Edit title (e.g., edit --title "Full Stack Developer")',
+  'edit --location <value>': 'Edit location (e.g., edit --location "San Francisco, USA")',
+  'edit --education': 'Add education entry (e.g., edit --education --degree "PhD" --school "Harvard" --year "2020-2023")',
+  'edit --experience': 'Add experience entry (e.g., edit --experience --role "CTO" --company "Tech Inc" --period "2023-Present" --description "Leading tech strategy")',
+  'edit --skills <value>': 'Add skill (e.g., edit --skills "React Native")',
+  'clear': 'Clear terminal output',
+  'clear cv': 'Reset CV to default values',
+  'print': 'Print CV as PDF (web) or save as image (mobile)'
 };
 
 function CommandPrompt({ command }: { command: string }) {
+  const parts = command.split(' ');
   return (
-    <View style={styles.commandLine}>
+    <RNView style={styles.commandLine}>
       <Text style={styles.prompt}>PS C:\Users\Guest{'>'} </Text>
-      <Text style={styles.command}>{command}</Text>
-    </View>
+      {parts.map((part, index) => (
+        <Text key={index} style={[
+          styles.commandText,
+          !part.startsWith('--') ? styles.commandYellow : styles.commandWhite
+        ]}>
+          {part}{index < parts.length - 1 ? ' ' : ''}
+        </Text>
+      ))}
+    </RNView>
   );
 }
 
 function OutputBlock({ children }: { children: React.ReactNode }) {
-  return <View style={styles.output}>{children}</View>;
+  return <RNView style={styles.output}>{children}</RNView>;
 }
 
 type CommandHistory = {
@@ -72,103 +91,252 @@ type CommandHistory = {
 };
 
 export default function Terminal() {
+  const [cvData, setCvData] = useState({ ...DEFAULT_CV_DATA });
   const [commandHistory, setCommandHistory] = useState<CommandHistory[]>([]);
   const [currentCommand, setCurrentCommand] = useState('');
+  const terminalRef = useRef<RNView | null>(null);
 
-  const executeCommand = (command: string) => {
+  const parseEditCommand = (command: string) => {
+    const parts = command.split('--').filter(Boolean);
+    const result: Record<string, string> = {};
+    
+    parts.forEach(part => {
+      const [key, ...values] = part.trim().split(' ');
+      if (key && values.length > 0) {
+        result[key] = values.join(' ').replace(/"/g, '');
+      }
+    });
+    
+    return result;
+  };
+
+  const executeCommand = async (command: string) => {
     let output: React.ReactNode;
+    const [cmd, ...args] = command.trim().toLowerCase().split(' ');
+    const flag = args[0];
 
-    switch (command.trim().toLowerCase()) {
-      case 'cv --help':
-        output = (
-          <>
-            <Text style={styles.outputText}>Available commands:</Text>
-            {Object.entries(COMMANDS).map(([cmd, desc]) => (
-              <Text key={cmd} style={styles.outputText}>
-                {cmd.padEnd(20)} - {desc}
-              </Text>
-            ))}
-          </>
-        );
-        break;
+    if (cmd === 'edit') {
+      const params = parseEditCommand(command);
+      const newData = { ...cvData };
 
-      case 'cv --name':
-        output = (
-          <>
-            <Text style={styles.outputText}>Name: {CV_DATA.name}</Text>
-            <Text style={styles.outputText}>Title: {CV_DATA.title}</Text>
-            <Text style={styles.outputText}>Location: {CV_DATA.location}</Text>
-          </>
-        );
-        break;
+      if (params.name) {
+        newData.name = params.name;
+      } else if (params.title) {
+        newData.title = params.title;
+      } else if (params.location) {
+        newData.location = params.location;
+      } else if (params.education) {
+        const newEducation = {
+          degree: params.degree || '',
+          school: params.school || '',
+          year: params.year || ''
+        };
+        newData.education = [...newData.education, newEducation];
+      } else if (params.experience) {
+        const newExperience = {
+          role: params.role || '',
+          company: params.company || '',
+          period: params.period || '',
+          description: params.description || ''
+        };
+        newData.experience = [...newData.experience, newExperience];
+      } else if (params.skills) {
+        newData.skills = [...newData.skills, params.skills];
+      }
 
-      case 'cv --education':
-        output = CV_DATA.education.map((edu, index) => (
-          <View key={index} style={styles.section}>
-            <Text style={styles.outputText}>{edu.degree}</Text>
-            <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
-          </View>
-        ));
-        break;
+      setCvData(newData);
+      output = <Text style={styles.outputText}>CV updated successfully!</Text>;
+    } else if (cmd === 'cv') {
+      switch (flag) {
+        case '--help':
+          output = (
+            <>
+              <Text style={styles.outputText}>Available commands:</Text>
+              {Object.entries(COMMANDS).map(([cmd, desc]) => (
+                <Text key={cmd} style={styles.outputText}>
+                  {cmd.padEnd(20)} - {desc}
+                </Text>
+              ))}
+            </>
+          );
+          break;
 
-      case 'cv --experience':
-        output = CV_DATA.experience.map((exp, index) => (
-          <View key={index} style={styles.section}>
-            <Text style={styles.outputText}>{exp.role}</Text>
-            <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
-            <Text style={styles.outputText}>{exp.description}</Text>
-          </View>
-        ));
-        break;
+        case '--name':
+          output = (
+            <>
+              <Text style={styles.outputText}>Name: {cvData.name}</Text>
+              <Text style={styles.outputText}>Title: {cvData.title}</Text>
+              <Text style={styles.outputText}>Location: {cvData.location}</Text>
+            </>
+          );
+          break;
 
-      case 'cv --skills':
-        output = CV_DATA.skills.map((skill, index) => (
-          <Text key={index} style={styles.outputText}>• {skill}</Text>
-        ));
-        break;
+        case '--education':
+          output = cvData.education.map((edu, index) => (
+            <RNView key={index} style={styles.section}>
+              <Text style={styles.outputText}>{edu.degree}</Text>
+              <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
+            </RNView>
+          ));
+          break;
 
-      case 'cv --all':
-        output = (
-          <>
-            <Text style={styles.outputText}>Name: {CV_DATA.name}</Text>
-            <Text style={styles.outputText}>Title: {CV_DATA.title}</Text>
-            <Text style={styles.outputText}>Location: {CV_DATA.location}</Text>
-            
-            <Text style={[styles.outputText, styles.sectionTitle]}>Education:</Text>
-            {CV_DATA.education.map((edu, index) => (
-              <View key={index} style={styles.section}>
-                <Text style={styles.outputText}>{edu.degree}</Text>
-                <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
-              </View>
-            ))}
-            
-            <Text style={[styles.outputText, styles.sectionTitle]}>Experience:</Text>
-            {CV_DATA.experience.map((exp, index) => (
-              <View key={index} style={styles.section}>
-                <Text style={styles.outputText}>{exp.role}</Text>
-                <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
-                <Text style={styles.outputText}>{exp.description}</Text>
-              </View>
-            ))}
-            
-            <Text style={[styles.outputText, styles.sectionTitle]}>Skills:</Text>
-            {CV_DATA.skills.map((skill, index) => (
-              <Text key={index} style={styles.outputText}>• {skill}</Text>
-            ))}
-          </>
-        );
-        break;
+        case '--experience':
+          output = cvData.experience.map((exp, index) => (
+            <RNView key={index} style={styles.section}>
+              <Text style={styles.outputText}>{exp.role}</Text>
+              <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
+              <Text style={styles.outputText}>{exp.description}</Text>
+            </RNView>
+          ));
+          break;
 
-      case 'clear':
-        setCommandHistory([]);
-        return;
+        case '--skills':
+          output = cvData.skills.map((skill, index) => (
+            <Text key={index} style={styles.outputText}>• {skill}</Text>
+          ));
+          break;
 
-      default:
-        output = (
-          <Text style={styles.outputText}>
-            Command not recognized. Type 'cv --help' to see available commands.
-          </Text>
-        );
+        case '--fullcv':
+          output = (
+            <>
+              <Text style={[styles.outputText, styles.sectionTitle]}>Personal Information</Text>
+              <Text style={styles.outputText}>Name: {cvData.name}</Text>
+              <Text style={styles.outputText}>Title: {cvData.title}</Text>
+              <Text style={styles.outputText}>Location: {cvData.location}</Text>
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Education</Text>
+              {cvData.education.map((edu, index) => (
+                <RNView key={index} style={styles.section}>
+                  <Text style={styles.outputText}>{edu.degree}</Text>
+                  <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
+                </RNView>
+              ))}
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Experience</Text>
+              {cvData.experience.map((exp, index) => (
+                <RNView key={index} style={styles.section}>
+                  <Text style={styles.outputText}>{exp.role}</Text>
+                  <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
+                  <Text style={styles.outputText}>{exp.description}</Text>
+                </RNView>
+              ))}
+              
+              <Text style={[styles.outputText, styles.sectionTitle]}>Skills</Text>
+              {cvData.skills.map((skill, index) => (
+                <Text key={index} style={styles.outputText}>• {skill}</Text>
+              ))}
+            </>
+          );
+          break;
+
+        default:
+          output = (
+            <Text style={styles.outputText}>
+              Command not recognized. Type 'cv --help' to see available commands.
+            </Text>
+          );
+      }
+    } else if (command.trim().toLowerCase() === 'clear') {
+      setCommandHistory([]);
+      return;
+    } else if (command.trim().toLowerCase() === 'clear cv') {
+      setCvData({ ...DEFAULT_CV_DATA });
+      output = <Text style={styles.outputText}>CV has been reset to default values.</Text>;
+    } else if (command.trim().toLowerCase() === 'print') {
+      if (Platform.OS === 'web') {
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                h1 { color: #333; }
+                h2 { color: #666; margin-top: 20px; }
+                .section { margin-bottom: 20px; }
+                .item { margin-bottom: 10px; }
+              </style>
+            </head>
+            <body>
+              <h1>${cvData.name}</h1>
+              <p>${cvData.title}</p>
+              <p>${cvData.location}</p>
+              
+              <h2>Education</h2>
+              ${cvData.education.map(edu => `
+                <div class="section">
+                  <div class="item">
+                    <strong>${edu.degree}</strong><br>
+                    ${edu.school} | ${edu.year}
+                  </div>
+                </div>
+              `).join('')}
+              
+              <h2>Experience</h2>
+              ${cvData.experience.map(exp => `
+                <div class="section">
+                  <div class="item">
+                    <strong>${exp.role}</strong><br>
+                    ${exp.company} | ${exp.period}<br>
+                    ${exp.description}
+                  </div>
+                </div>
+              `).join('')}
+              
+              <h2>Skills</h2>
+              <ul>
+                ${cvData.skills.map(skill => `<li>${skill}</li>`).join('')}
+              </ul>
+            </body>
+          </html>
+        `;
+
+        try {
+          await Print.printAsync({
+            html: htmlContent,
+          });
+          output = <Text style={styles.outputText}>CV has been prepared for printing.</Text>;
+        } catch (error) {
+          output = <Text style={styles.outputText}>Error preparing CV for print. Please try again.</Text>;
+        }
+      } else {
+        try {
+          // Request permission to save to media library
+          const { status } = await MediaLibrary.requestPermissionsAsync();
+          if (status !== 'granted') {
+            output = <Text style={styles.outputText}>Permission to access media library was denied.</Text>;
+            return;
+          }
+
+          // Capture the full terminal view
+          const uri = await captureRef(terminalRef, {
+            format: 'jpg',
+            quality: 0.8,
+            result: 'tmpfile',
+            snapshotContentContainer: true
+          });
+
+          // Save to media library
+          const asset = await MediaLibrary.createAssetAsync(uri);
+          await MediaLibrary.createAlbumAsync('CV Terminal', asset, false);
+
+          // Also share the screenshot
+          await Share.share({
+            url: uri,
+            title: 'Terminal CV Screenshot',
+          });
+          
+          output = <Text style={styles.outputText}>Screenshot saved to gallery and ready to share.</Text>;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          output = <Text style={styles.outputText}>Error capturing screenshot: {errorMessage}</Text>;
+        }
+      }
+    } else {
+      output = (
+        <Text style={styles.outputText}>
+          Command not recognized. Type 'cv --help' to see available commands.
+        </Text>
+      );
     }
 
     setCommandHistory(prev => [...prev, { command, output }]);
@@ -183,37 +351,39 @@ export default function Terminal() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
-      >
-        <Text style={styles.welcomeText}>
-          Welcome to PowerShell CV Terminal{'\n'}
-          Type 'cv --help' to see available commands.
-        </Text>
-        {commandHistory.map((entry, index) => (
-          <View key={index}>
-            <CommandPrompt command={entry.command} />
-            <OutputBlock>{entry.output}</OutputBlock>
-          </View>
-        ))}
-      </ScrollView>
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.path}>PS C:\Users\Guest{'>'}</Text>
-          <TextInput
-            style={styles.input}
-            value={currentCommand}
-            onChangeText={setCurrentCommand}
-            onSubmitEditing={handleSubmit}
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholderTextColor="#666666"
-            cursorColor="#FFFFFF"
-            blurOnSubmit={false}
-          />
-        </View>
-      </View>
+      <RNView ref={terminalRef} style={styles.container} collapsable={false}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+        >
+          <Text style={styles.welcomeText}>
+            Welcome to PowerShell CV Terminal{'\n'}
+            Type 'cv --help' to see available commands.
+          </Text>
+          {commandHistory.map((entry, index) => (
+            <RNView key={index}>
+              <CommandPrompt command={entry.command} />
+              <OutputBlock>{entry.output}</OutputBlock>
+            </RNView>
+          ))}
+        </ScrollView>
+        <RNView style={styles.inputWrapper}>
+          <RNView style={styles.inputContainer}>
+            <Text style={styles.path}>PS C:\Users\Guest{'>'}</Text>
+            <TextInput
+              style={styles.input}
+              value={currentCommand}
+              onChangeText={setCurrentCommand}
+              onSubmitEditing={handleSubmit}
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholderTextColor="#666666"
+              cursorColor="#FFFFFF"
+              blurOnSubmit={false}
+            />
+          </RNView>
+        </RNView>
+      </RNView>
     </SafeAreaView>
   );
 }
@@ -240,16 +410,22 @@ const styles = StyleSheet.create({
   commandLine: {
     flexDirection: 'row',
     marginVertical: 8,
+    flexWrap: 'wrap',
   },
   prompt: {
     color: '#FFFFFF',
     fontFamily: 'monospace',
     fontSize: 14,
   },
-  command: {
-    color: '#F9E64F',
+  commandText: {
     fontFamily: 'monospace',
     fontSize: 14,
+  },
+  commandYellow: {
+    color: '#F9E64F',
+  },
+  commandWhite: {
+    color: '#FFFFFF',
   },
   output: {
     marginLeft: 16,
