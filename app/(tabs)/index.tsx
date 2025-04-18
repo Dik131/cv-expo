@@ -1,96 +1,25 @@
-import { useState, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View as RNView, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View as RNView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Print from 'expo-print';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import CommandPrompt from '../../components/CommandPrompt';
+import OutputBlock from '../../components/OutputBlock';
+import { CommandHistory } from '../../components/CommandHistory';
+import { DEFAULT_CV_DATA, COMMANDS } from '../../constants/cvData';
 
-const DEFAULT_CV_DATA = {
-  name: 'John Doe',
-  title: 'Senior Software Engineer',
-  age: 30,
-  location: 'New York, USA',
-  education: [
-    {
-      degree: 'Master of Computer Science',
-      school: 'Stanford University',
-      year: '2018-2020'
-    },
-    {
-      degree: 'Bachelor of Computer Science',
-      school: 'MIT',
-      year: '2014-2018'
-    }
-  ],
-  experience: [
-    {
-      role: 'Senior Software Engineer',
-      company: 'Tech Corp',
-      period: '2020-Present',
-      description: 'Leading development of cloud-native applications'
-    },
-    {
-      role: 'Software Engineer',
-      company: 'StartupX',
-      period: '2018-2020',
-      description: 'Full-stack development using React and Node.js'
-    }
-  ],
-  skills: [
-    'JavaScript/TypeScript',
-    'React/React Native',
-    'Node.js',
-    'Python',
-    'AWS',
-    'Docker'
-  ]
-};
 
-const COMMANDS = {
-  'cv --help': 'Display available commands',
-  'cv --name': 'Display name and title',
-  'cv --education': 'Display education history',
-  'cv --experience': 'Display work experience',
-  'cv --skills': 'Display technical skills',
-  'cv --all': 'Display complete CV in a formatted view',
-  'edit --name <value>': 'Edit name (e.g., edit --name John Smith)',
-  'edit --title <value>': 'Edit title (e.g., edit --title "Full Stack Developer")',
-  'edit --location <value>': 'Edit location (e.g., edit --location "San Francisco, USA")',
-  'edit --education': 'Add education entry (e.g., edit --education --degree "PhD" --school "Harvard" --year "2020-2023")',
-  'edit --experience': 'Add experience entry (e.g., edit --experience --role "CTO" --company "Tech Inc" --period "2023-Present" --description "Leading tech strategy")',
-  'edit --skills <value>': 'Add skill (e.g., edit --skills "React Native")',
-  'clear': 'Clear terminal output',
-  'clear cv': 'Reset CV to default values',
-  'print': 'Print CV as PDF (web) or save as image (mobile)'
-};
 
-function CommandPrompt({ command }: { command: string }) {
-  const parts = command.split(' ');
-  return (
-    <RNView style={styles.commandLine}>
-      <Text style={styles.prompt}>PS C:\Users\Guest{'>'} </Text>
-      {parts.map((part, index) => (
-        <Text key={index} style={[
-          styles.commandText,
-          !part.startsWith('--') ? styles.commandYellow : styles.commandWhite
-        ]}>
-          {part}{index < parts.length - 1 ? ' ' : ''}
-        </Text>
-      ))}
-    </RNView>
-  );
-}
 
-function OutputBlock({ children }: { children: React.ReactNode }) {
-  return <RNView style={styles.output}>{children}</RNView>;
-}
 
-type CommandHistory = {
-  command: string;
-  output: React.ReactNode;
-};
 
-export default function Terminal() {
+
+
+
+
+
+export function Terminal() {
   const [cvData, setCvData] = useState({ ...DEFAULT_CV_DATA });
   const [commandHistory, setCommandHistory] = useState<CommandHistory[]>([]);
   const [currentCommand, setCurrentCommand] = useState('');
@@ -392,32 +321,26 @@ export default function Terminal() {
           </Text>
           {commandHistory.map((entry, index) => (
             <RNView key={index}>
-              <CommandPrompt command={entry.command} />
+              <CommandPrompt command={entry.command} onChange={() => {}} onSubmit={() => {}} />
               <OutputBlock>{entry.output}</OutputBlock>
             </RNView>
           ))}
         </ScrollView>
         <RNView style={styles.inputWrapper}>
           <RNView style={styles.inputContainer}>
-            <Text style={styles.path}>PS C:\Users\Guest{'>'}</Text>
-            <TextInput
-              style={styles.input}
-              value={currentCommand}
-              onChangeText={setCurrentCommand}
-              onSubmitEditing={handleSubmit}
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholderTextColor="#666666"
-              cursorColor="#FFFFFF"
-              blurOnSubmit={false}
+            <CommandPrompt
+              command={currentCommand}
+              onChange={setCurrentCommand}
+              onSubmit={handleSubmit}
             />
           </RNView>
         </RNView>
       </RNView>
     </SafeAreaView>
   );
-}
+};
 
+export default Terminal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
