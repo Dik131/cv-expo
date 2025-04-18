@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Print from 'expo-print';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import CommandPrompt from '../../components/CommandPrompt';
+import CommandLine from '../../components/CommandLine';
 import OutputBlock from '../../components/OutputBlock';
 import { CommandHistory } from '../../components/CommandHistory';
 import { DEFAULT_CV_DATA, COMMANDS } from '../../constants/cvData';
@@ -321,19 +321,26 @@ export function Terminal() {
           </Text>
           {commandHistory.map((entry, index) => (
             <RNView key={index}>
-              <CommandPrompt command={entry.command} onChange={() => {}} onSubmit={() => {}} />
+              <CommandLine command={entry.command} />
               <OutputBlock>{entry.output}</OutputBlock>
             </RNView>
           ))}
         </ScrollView>
         <RNView style={styles.inputWrapper}>
           <RNView style={styles.inputContainer}>
-            <CommandPrompt
-              command={currentCommand}
-              onChange={setCurrentCommand}
-              onSubmit={handleSubmit}
-            />
-          </RNView>
+          <CommandLine
+            command={currentCommand}
+            isInput
+            inputProps={{
+              onChangeText: setCurrentCommand,
+              onSubmitEditing: handleSubmit,
+              value: currentCommand,
+              placeholderTextColor: '#666666',
+              cursorColor: '#FFFFFF',
+              blurOnSubmit: false,
+            }}
+          />
+        </RNView>
         </RNView>
       </RNView>
     </SafeAreaView>
