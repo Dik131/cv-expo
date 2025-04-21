@@ -1,11 +1,14 @@
 {
-  "name": "bolt-expo-starter",
+  "name": "power-shell-cv-maker",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "npx expo start",
     "build:web": "expo export --platform web",
+    "build:all": "eas build --platform all",
+    "build:ios": "eas build --platform ios",
+    "build:android": "eas build --platform android",
     "lint": "expo lint"
   },
   "dependencies": {

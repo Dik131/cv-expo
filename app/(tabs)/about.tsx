@@ -12,6 +12,9 @@ export default function About() {
         <Text style={styles.text}>
           Built with React Native and Expo, this app demonstrates creativity in presenting a traditional CV in a developer-friendly format.
         </Text>
+        <Text style={styles.text}>
+          Autor's web-site: <a href="https://ivanovdk-bc.netlify.app/" target="_blank">https://ivanovdk-bc.netlify.app/</a> 
+        </Text>
       </View>
     </SafeAreaView>
   );
