@@ -8,7 +8,7 @@ export const DEFAULT_CV_DATA = {
     {
       degree: 'Specialist in Audiovisual Technology',
       school: 'Moscow Technical University of Communications and Informatics (MTUCI)',
-      year: '2011–2018',
+      year: '2011–2017',
     },
     {
       degree: 'High School: information technology',
