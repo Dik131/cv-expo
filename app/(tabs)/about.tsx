@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function About() {
@@ -13,7 +13,13 @@ export default function About() {
           Built with React Native and Expo, this app demonstrates creativity in presenting a traditional CV in a developer-friendly format.
         </Text>
         <Text style={styles.text}>
-          Autor's web-site: <a href="https://ivanovdk-bc.netlify.app/" target="_blank">https://ivanovdk-bc.netlify.app/</a> 
+          Autor's web-site:{' '}
+        </Text>
+        <Text 
+          style={[styles.text, styles.link]}
+          onPress={() => Linking.openURL('https://ivanovdk-bc.netlify.app/')}
+        >
+          https://ivanovdk-bc.netlify.app/
         </Text>
       </View>
     </SafeAreaView>
@@ -41,4 +47,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 24,
   },
+  link: {
+    textDecorationLine: 'underline',
+    color: '#4da6ff',
+    marginTop: -12  // To compensate for the previous text's marginBottom
+  }
 });
