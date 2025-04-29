@@ -23,10 +23,19 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "manifest": {
+          "display": "standalone",
+          "start_url": ".",
+          "name": "Power-Shell CV Maker",
+          "short_name": "CV Maker",
+          "themeColor": "#1e90ff",
+          "backgroundColor": "#012456"
+  }
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
