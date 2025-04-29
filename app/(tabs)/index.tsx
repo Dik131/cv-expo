@@ -10,16 +10,6 @@ import { CommandHistory } from '../../components/CommandHistory';
 import i18n from '../../i18n';
 import { getCvData, getCommands, DEFAULT_CV_DATA, CvData } from '../../constants/cvData';
 
-
-
-
-
-
-
-
-
-
-
 type Education = {
   degree: string;
   school: string;
@@ -347,7 +337,7 @@ export function Terminal() {
         >
           <Text style={styles.welcomeText}>
             Welcome to PowerShell CV Terminal{'\n'}
-            Type 'cv --help' to see available commands.
+            Type 'cv --lang ru|en|de' to change language or 'cv --help' to see available commands.
           </Text>
           {commandHistory.map((entry, index) => (
             <RNView key={index}>

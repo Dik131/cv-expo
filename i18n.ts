@@ -1,5 +1,7 @@
-import * as Localization from 'expo-localization';
-import i18n from 'i18n-js';
+import { I18n } from 'i18n-js';
+
+const i18n = new I18n();
+
 
 // English translations
 i18n.translations = {
@@ -416,7 +418,7 @@ i18n.translations = {
   }
 };
 
-i18n.locale = 'ru'; 
-i18n.fallbacks = true;
+i18n.locale = 'ru';
+i18n.enableFallback = true;
 
 export default i18n;
