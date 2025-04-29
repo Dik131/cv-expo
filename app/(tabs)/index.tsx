@@ -7,7 +7,8 @@ import * as Sharing from 'expo-sharing';
 import CommandLine from '../../components/CommandLine';
 import OutputBlock from '../../components/OutputBlock';
 import { CommandHistory } from '../../components/CommandHistory';
-import { DEFAULT_CV_DATA, COMMANDS } from '../../constants/cvData';
+import i18n from '../../i18n';
+import { getCvData, getCommands, DEFAULT_CV_DATA, CvData } from '../../constants/cvData';
 
 
 
@@ -18,11 +19,26 @@ import { DEFAULT_CV_DATA, COMMANDS } from '../../constants/cvData';
 
 
 
+
+type Education = {
+  degree: string;
+  school: string;
+  year: string;
+};
+
+type Experience = {
+  role: string;
+  company: string;
+  period: string;
+  description: string;
+};
 
 export function Terminal() {
-  const [cvData, setCvData] = useState({ ...DEFAULT_CV_DATA });
+  const [cvData, setCvData] = useState<CvData>(getCvData(i18n));
   const [commandHistory, setCommandHistory] = useState<CommandHistory[]>([]);
   const [currentCommand, setCurrentCommand] = useState('');
+  const [commands, setCommands] = useState(getCommands(i18n));
+  const [lang, setLang] = useState(i18n.locale);
   const terminalRef = useRef<RNView | null>(null);
 
   const parseEditCommand = (command: string) => {
@@ -51,6 +67,21 @@ export function Terminal() {
 
     let matched = false;
     if (cmd.startsWith('cv')) {
+      // Language switcher: cv --lang ru|en|de
+      if (/^--lang (ru|en|de)$/.test(cmd.slice(2).trim())) {
+        const newLang = cmd.slice(2).trim().split(' ')[1];
+        i18n.locale = newLang;
+        setLang(newLang);
+        setCvData(getCvData(i18n));
+        setCommands(getCommands(i18n));
+        output = (
+          <Text style={styles.outputText}>
+            {i18n.t('terminal.languageChanged')} {newLang}
+          </Text>
+        );
+        setCommandHistory((prev) => [...prev, { command, output }]);
+        return;
+      }
       // Get everything after 'cv' and trim
       const flag = cmd.slice(2).trim();
 
@@ -58,10 +89,10 @@ export function Terminal() {
         case '--help':
           output = (
             <>
-              <Text style={styles.outputText}>Available commands:</Text>
-              {Object.entries(COMMANDS).map(([cmd, desc]) => (
+              <Text style={styles.outputText}>{i18n.t('terminal.availableCommands')}</Text>
+              {Object.entries(commands).map(([cmd, desc]) => (
                 <Text key={cmd} style={styles.outputText}>
-                  {cmd.padEnd(20)} - {desc}
+                  {`${cmd.padEnd(20)} - ${desc}`}
                 </Text>
               ))}
             </>
@@ -72,26 +103,25 @@ export function Terminal() {
         case '--name':
           output = (
             <>
-              <Text style={styles.outputText}>Name: {cvData.name}</Text>
-              <Text style={styles.outputText}>Title: {cvData.title}</Text>
-              <Text style={styles.outputText}>Location: {cvData.location}</Text>
+              <Text style={styles.outputText}>{i18n.t('terminal.name')}: {cvData.name}</Text>
+              <Text style={styles.outputText}>{i18n.t('terminal.title')}: {cvData.title}</Text>
+              <Text style={styles.outputText}>{i18n.t('terminal.location')}: {cvData.location}</Text>
             </>
           );
           matched = true;
           break;
 
         case '--education':
-          output = cvData.education.map((edu, index) => (
-            <RNView key={index} style={styles.section}>
-              <Text style={styles.outputText}>{edu.degree}</Text>
-              <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
-            </RNView>
-          ));
+          output = (
+            <Text style={styles.outputText}>
+              {cvData.education.map((edu: Education) => `${edu.degree} - ${edu.school} (${edu.year})`).join('\n')}
+            </Text>
+          );
           matched = true;
           break;
 
         case '--experience':
-          output = cvData.experience.map((exp, index) => (
+          output = (cvData.experience as Experience[]).map((exp: Experience, index: number) => (
             <RNView key={index} style={styles.section}>
               <Text style={styles.outputText}>{exp.role}</Text>
               <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
@@ -102,7 +132,7 @@ export function Terminal() {
           break;
 
         case '--skills':
-          output = cvData.skills.map((skill, index) => (
+          output = (cvData.skills as string[]).map((skill: string, index: number) => (
             <Text key={index} style={styles.outputText}>• {skill}</Text>
           ));
           matched = true;
@@ -117,7 +147,7 @@ export function Terminal() {
               <Text style={styles.outputText}>Location: {cvData.location}</Text>
               
               <Text style={[styles.outputText, styles.sectionTitle]}>Education</Text>
-              {cvData.education.map((edu, index) => (
+              {(cvData.education as Education[]).map((edu: Education, index: number) => (
                 <RNView key={index} style={styles.section}>
                   <Text style={styles.outputText}>{edu.degree}</Text>
                   <Text style={styles.outputText}>{edu.school} | {edu.year}</Text>
@@ -125,7 +155,7 @@ export function Terminal() {
               ))}
               
               <Text style={[styles.outputText, styles.sectionTitle]}>Experience</Text>
-              {cvData.experience.map((exp, index) => (
+              {(cvData.experience as Experience[]).map((exp: Experience, index: number) => (
                 <RNView key={index} style={styles.section}>
                   <Text style={styles.outputText}>{exp.role}</Text>
                   <Text style={styles.outputText}>{exp.company} | {exp.period}</Text>
@@ -134,7 +164,7 @@ export function Terminal() {
               ))}
               
               <Text style={[styles.outputText, styles.sectionTitle]}>Skills</Text>
-              {cvData.skills.map((skill, index) => (
+              {(cvData.skills as string[]).map((skill: string, index: number) => (
                 <Text key={index} style={styles.outputText}>• {skill}</Text>
               ))}
             </>
