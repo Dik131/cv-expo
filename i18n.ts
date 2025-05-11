@@ -140,6 +140,8 @@ i18n.translations = {
       languageChanged: 'Language changed to',
       unknownCommand: 'Unknown command',
       about: 'About',
+      welcome: 'Welcome to PowerShell CV Terminal',
+      languageInstructions: "Type 'cv --lang ru|en|de' to change language or 'cv --help' to see available commands"
     }
   },
   ru: {
@@ -277,6 +279,8 @@ i18n.translations = {
       languageChanged: 'Язык изменён на',
       unknownCommand: 'Неизвестная команда',
       about: 'О приложении',
+      welcome: 'Добро пожаловать в PowerShell CV Terminal',
+      languageInstructions: "Введите 'cv --lang ru|en|de' для смены языка или 'cv --help' для просмотра доступных команд"
     }
   },
   de: {
@@ -329,7 +333,7 @@ i18n.translations = {
           description: [
             'Technische Anweisungen entworfen, Multiplex-Schemata in Visio erstellt.',
             'Webentwicklung wiederbelebt: HTML/CSS, JavaScript, React.js gelernt.',
-            'Projekt: Von Silicon Valley inspirierte Firmenwebsite.'
+            'Projekt: Von Silicon Valley inspirierende Firmenwebsite.'
           ].join('\n'),
         },
         {

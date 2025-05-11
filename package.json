@@ -9,6 +9,9 @@
     "build:all": "eas build --platform all",
     "build:ios": "eas build --platform ios",
     "build:android": "eas build --platform android",
+    "build:apk": "eas build -p android --profile preview",
+    "build:ipa": "eas build -p ios --profile preview",
+    "eas": "eas",
     "lint": "expo lint",
     "android": "expo run:android",
     "ios": "expo run:ios"

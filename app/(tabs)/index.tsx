@@ -336,8 +336,8 @@ export function Terminal() {
           contentContainerStyle={styles.scrollViewContent}
         >
           <Text style={styles.welcomeText}>
-            Welcome to PowerShell CV Terminal{'\n'}
-            Type 'cv --lang ru|en|de' to change language or 'cv --help' to see available commands.
+            {i18n.t('terminal.welcome')}{'\n'}
+            {i18n.t('terminal.languageInstructions')}
           </Text>
           {commandHistory.map((entry, index) => (
             <RNView key={index}>
