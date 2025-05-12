@@ -122,9 +122,15 @@ export function Terminal() {
           break;
 
         case '--skills':
-          output = (cvData.skills as string[]).map((skill: string, index: number) => (
-            <Text key={index} style={styles.outputText}>• {skill}</Text>
-          ));
+          output = (
+            <RNView style={styles.skillsContainer}>
+              {(cvData.skills as string[]).map((skill: string, index: number) => (
+                <Text key={index} style={styles.skillItem}>
+                  {skill}
+                </Text>
+              ))}
+            </RNView>
+          );
           matched = true;
           break;
 
@@ -154,9 +160,13 @@ export function Terminal() {
               ))}
               
               <Text style={[styles.outputText, styles.sectionTitle]}>Skills</Text>
-              {(cvData.skills as string[]).map((skill: string, index: number) => (
-                <Text key={index} style={styles.outputText}>• {skill}</Text>
-              ))}
+              <RNView style={styles.skillsContainer}>
+                {(cvData.skills as string[]).map((skill: string, index: number) => (
+                  <Text key={index} style={styles.skillItem}>
+                    {skill}
+                  </Text>
+                ))}
+              </RNView>
             </>
           );
           matched = true;
@@ -456,6 +466,8 @@ const styles = StyleSheet.create({
   skillsContainer: {
     flexDirection: 'row',
     marginVertical: 8,
+    flexWrap: 'wrap',
+    width: '100%',
   },
   skillItem: {
     color: '#FFFFFF',
@@ -465,6 +477,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginRight: 8,
+    marginBottom: 8,
     borderRadius: 16,
     overflow: 'hidden',
   },
