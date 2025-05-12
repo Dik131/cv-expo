@@ -453,4 +453,19 @@ const styles = StyleSheet.create({
     height: 20,
     backgroundColor: 'transparent',
   },
+  skillsContainer: {
+    flexDirection: 'row',
+    marginVertical: 8,
+  },
+  skillItem: {
+    color: '#FFFFFF',
+    fontFamily: 'monospace',
+    fontSize: 14,
+    backgroundColor: '#1E3E7B',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
 });

@@ -36,57 +36,20 @@ i18n.translations = {
           company: 'Video Surveillance & Transport Tech Company',
           period: '2023–Present',
           description: [
-            'Systematized equipment technical passports and wrote hundreds of device specifications.',
-            'Hands-on experience with network protocols, presentations, and client training.',
-            'Developed SPA PWA app for equipment docs (Electron/Android), alternative company website.',
-            'Learned Python basics, deployed Django project, wrote automation scripts.',
-            'Collected data for neural network training, tested/debugged models.',
-            'Authored manuals, contributed to job descriptions, software registration page.',
-            'Mastered Socket.IO, SheetJS, MVC; soldering, VM config, custom software builds.',
-            'Tested cameras, recorders; worked with Jira, SAP ITSM, Bitrix24, Strive, Dolibarr.',
-            'Maintained/upgraded network infra & access control, trained employees.',
-            'Built Telegram bot (Grammy), refined tech requirements, assembled/maintained office equipment.'
+            'React Native (Expo) developer focused on cross-platform applications.',
+            'Experience with TypeScript, Zustand, Reanimated.',
+            'Developed SPA PWA for documentation (Electron/Android).',
+            'Creating adaptive interfaces for mobile, tablet and desktop.',
+            'Working with Next.JS, NestJS, Express, Socket.IO, REST API.',
+            'Experience in multilingual localization and custom animations.'
           ].join('\n'),
-        },
+        }
+      ],
+      educationHistory: [
         {
-          role: 'Engineer (Category I/II)',
-          company: 'RTRS, Multiplexing Department',
-          period: '2019–2021',
-          description: [
-            'Drafted technical instructions, designed multiplex schematics in Visio.',
-            'Revived web dev skills: HTML/CSS, learned JavaScript, React.js.',
-            'Project: Silicon Valley-inspired company website.'
-          ].join('\n'),
-        },
-        {
-          role: 'Transmitter Engineer',
-          company: 'RTRS (Ostankino Tower)',
-          period: '2017–2018',
-          description: 'Studied workplace safety, learned HTML/CSS, continued English studies.'
-        },
-        {
-          role: 'Technical Support Engineer',
-          company: 'MorSvyazSputnik',
-          period: '2022',
-          description: 'Supported technical operations; resigned due to Russia-Ukraine conflict.'
-        },
-        {
-          role: 'Data Engineer',
-          company: 'RosHydroMet',
-          period: '2011–2014, 2015–2016',
-          description: 'Worked with mail servers, early Python, Unity, Maple, MathLab exposure.'
-        },
-        {
-          role: 'Lab Assistant',
-          company: 'MTUCI Physics Department',
-          period: '2011–2014',
-          description: 'Used C# for math/physics tasks.'
-        },
-        {
-          role: 'Army Service',
-          company: 'Russian Army',
-          period: '2012',
-          description: 'Learned about CCTV and access control systems.'
+          degree: 'Specialist in Audiovisual Technology',
+          school: 'Moscow Technical University of Communications and Informatics (MTUCI)',
+          year: '2011–2017',
         }
       ],
       skills: [
@@ -175,57 +138,20 @@ i18n.translations = {
           company: 'Компания по видеонаблюдению и транспорту',
           period: '2023–н.в.',
           description: [
-            'Систематизация паспортов оборудования, составление спецификаций.',
-            'Практический опыт с сетевыми протоколами, презентациями, обучением клиентов.',
-            'Разработка SPA PWA для документации (Electron/Android), альтернативный сайт компании.',
-            'Изучение основ Python, деплой Django, написание скриптов.',
-            'Сбор данных для нейросетей, тестирование/отладка моделей.',
-            'Написание инструкций, участие в описании вакансий, страница регистрации ПО.',
-            'Socket.IO, SheetJS, MVC; пайка, настройка ВМ, сборка ПО.',
-            'Тестирование камер, регистраторов; Jira, SAP ITSM, Bitrix24, Strive, Dolibarr.',
-            'Обслуживание/апгрейд сети и СКУД, обучение сотрудников.',
-            'Разработка Telegram-бота (Grammy), доработка требований, сборка/обслуживание офисной техники.'
+            'React Native (Expo) разработчик с фокусом на кроссплатформенные приложения.',
+            'Опыт работы с TypeScript, Zustand, Reanimated.',
+            'Разработка SPA PWA для документации (Electron/Android).',
+            'Создание адаптивных интерфейсов для мобильных, планшетов и desktop.',
+            'Работа с Next.JS, NestJS, Express, Socket.IO, REST API.',
+            'Опыт в многоязычной локализации и кастомной анимации.'
           ].join('\n'),
-        },
+        }
+      ],
+      educationHistory: [
         {
-          role: 'Инженер (I/II категории)',
-          company: 'РТРС, отдел мультиплексирования',
-          period: '2019–2021',
-          description: [
-            'Разработка инструкций, схем мультиплексирования в Visio.',
-            'Восстановление навыков веб-разработки: HTML/CSS, изучение JavaScript, React.js.',
-            'Проект: сайт компании в стиле Кремниевой долины.'
-          ].join('\n'),
-        },
-        {
-          role: 'Инженер-передатчик',
-          company: 'РТРС (Останкинская башня)',
-          period: '2017–2018',
-          description: 'Изучение техники безопасности, HTML/CSS, продолжение изучения английского.'
-        },
-        {
-          role: 'Инженер техподдержки',
-          company: 'МорСвязьСпутник',
-          period: '2022',
-          description: 'Техническая поддержка; увольнение из-за конфликта РФ-Украина.'
-        },
-        {
-          role: 'Инженер данных',
-          company: 'РосГидроМетео',
-          period: '2011–2014, 2015–2016',
-          description: 'Работа с почтовыми серверами, ранний опыт с Python, Unity, Maple, MathLab.'
-        },
-        {
-          role: 'Лаборант',
-          company: 'МТУСИ, кафедра физики',
-          period: '2011–2014',
-          description: 'Использование C# для математических и физических задач.'
-        },
-        {
-          role: 'Служба в армии',
-          company: 'Российская армия',
-          period: '2012',
-          description: 'Знакомство с системами видеонаблюдения и СКУД.'
+          degree: 'Специалист по аудиовизуальным технологиям',
+          school: 'МТУСИ',
+          year: '2011–2017',
         }
       ],
       skills: [
@@ -314,57 +240,20 @@ i18n.translations = {
           company: 'Videoüberwachungs- & Transporttechnikunternehmen',
           period: '2023–Heute',
           description: [
-            'Systematisierte technische Pässe und schrieb Hunderte von Gerätespezifikationen.',
-            'Praktische Erfahrung mit Netzwerkprotokollen, Präsentationen und Kundenschulungen.',
-            'Entwicklung einer SPA PWA App für Gerätedokumente (Electron/Android), alternative Firmenwebsite.',
-            'Grundlagen von Python gelernt, Django-Projekt bereitgestellt, Automatisierungsskripte geschrieben.',
-            'Daten für neuronale Netzwerke gesammelt, Modelle getestet/debuggt.',
-            'Handbücher verfasst, zu Stellenbeschreibungen beigetragen, Software-Registrierungsseite.',
-            'Socket.IO, SheetJS, MVC; Löten, VM-Konfiguration, individuelle Software-Builds.',
-            'Kameras, Rekorder getestet; Erfahrung mit Jira, SAP ITSM, Bitrix24, Strive, Dolibarr.',
-            'Netzwerkinfrastruktur gewartet/aufgerüstet, Mitarbeiter geschult.',
-            'Telegram-Bot (Grammy) gebaut, technische Anforderungen verfeinert, Büroausstattung montiert/gewartet.'
+            'React Native (Expo) Entwickler mit Fokus auf plattformübergreifende Anwendungen.',
+            'Erfahrung mit TypeScript, Zustand, Reanimated.',
+            'Entwicklung einer SPA PWA für Dokumentation (Electron/Android).',
+            'Erstellung adaptiver Benutzeroberflächen für Mobile, Tablet und Desktop.',
+            'Arbeit mit Next.JS, NestJS, Express, Socket.IO, REST API.',
+            'Erfahrung in mehrsprachiger Lokalisierung und individueller Animation.'
           ].join('\n'),
-        },
+        }
+      ],
+      educationHistory: [
         {
-          role: 'Ingenieur (Kategorie I/II)',
-          company: 'RTRS, Multiplex-Abteilung',
-          period: '2019–2021',
-          description: [
-            'Technische Anweisungen entworfen, Multiplex-Schemata in Visio erstellt.',
-            'Webentwicklung wiederbelebt: HTML/CSS, JavaScript, React.js gelernt.',
-            'Projekt: Von Silicon Valley inspirierende Firmenwebsite.'
-          ].join('\n'),
-        },
-        {
-          role: 'Senderingenieur',
-          company: 'RTRS (Ostankino-Turm)',
-          period: '2017–2018',
-          description: 'Arbeitssicherheit studiert, HTML/CSS gelernt, Englischkenntnisse vertieft.'
-        },
-        {
-          role: 'Technischer Support-Ingenieur',
-          company: 'MorSvyazSputnik',
-          period: '2022',
-          description: 'Technische Unterstützung; Kündigung wegen Russland-Ukraine-Konflikt.'
-        },
-        {
-          role: 'Dateningenieur',
-          company: 'RosHydroMet',
-          period: '2011–2014, 2015–2016',
-          description: 'Arbeit mit Mailservern, frühe Erfahrungen mit Python, Unity, Maple, MathLab.'
-        },
-        {
-          role: 'Laborassistent',
-          company: 'MTUCI Physikabteilung',
-          period: '2011–2014',
-          description: 'C# für mathematische/physikalische Aufgaben verwendet.'
-        },
-        {
-          role: 'Militärdienst',
-          company: 'Russische Armee',
-          period: '2012',
-          description: 'Erfahrung mit Videoüberwachungs- und Zugangskontrollsystemen.'
+          degree: 'Spezialist für audiovisuelle Technik',
+          school: 'Moskauer Technische Universität für Kommunikation und Informatik (MTUCI)',
+          year: '2011–2017',
         }
       ],
       skills: [
